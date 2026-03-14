@@ -32,11 +32,13 @@ def load_serper_key():
     return os.environ.get("SERPER_API_KEY", "")
 
 # Search queries to find mentions
+# Note: "Marilyn Coleman" alone is too generic — another Marilyn Coleman is a published
+# academic author. Use full name + business name as differentiators.
 MENTION_QUERIES = [
-    '"Marilyn Coleman" therapist',
     '"Shameless Mama Wellness"',
-    '"Marilyn Cross Coleman"',
     '"shamelessmamawellness.com"',
+    '"Marilyn Cross Coleman" therapist',
+    '"Marilyn Cross Coleman" postpartum',
 ]
 
 # Domains to skip (these are directories/aggregators, not editorial mentions)
@@ -136,6 +138,20 @@ def get_domain(url):
     return match.group(1) if match else ""
 
 
+def load_known_quoted_articles():
+    """
+    Load URLs of articles Marilyn has already been quoted in.
+    These are stored in data/quoted_articles.json — add URLs there manually
+    so the scanner doesn't flag them as outreach opportunities.
+    Format: a JSON array of URL strings.
+    """
+    articles_file = os.path.join(DATA_DIR, "quoted_articles.json")
+    if os.path.exists(articles_file):
+        with open(articles_file) as f:
+            return set(json.load(f))
+    return set()
+
+
 def load_known_links():
     """Load previously found linked mentions to avoid re-alerting."""
     known_file = os.path.join(DATA_DIR, "known_linked_mentions.json")
@@ -167,6 +183,7 @@ def run():
         return {}
 
     known_linked = load_known_links()
+    known_quoted = load_known_quoted_articles()
     all_mentions = []
     unlinked_opportunities = []
 
@@ -180,6 +197,11 @@ def run():
 
             # Skip known irrelevant domains
             if any(skip in domain for skip in SKIP_DOMAINS):
+                continue
+
+            # Skip articles Marilyn has already been quoted in (tracked manually)
+            if url in known_quoted:
+                print(f"  ✅ Known quoted article — skipping: {domain}")
                 continue
 
             # Skip if we've already confirmed this page links to us
