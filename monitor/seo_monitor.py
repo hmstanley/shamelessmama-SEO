@@ -1,6 +1,8 @@
 """
 SEO Monitor for shamelessmamawellness.com
-Checks keyword rankings and saves results to dashboard/data/rankings.json
+Checks keyword rankings via Serper.dev (Google results) and saves to dashboard/data/rankings.json
+
+API key: stored in .serperAPI at the repo root (never committed to git)
 
 Run: python monitor/seo_monitor.py
 """
@@ -15,6 +17,7 @@ import re
 
 TARGET_SITE = "shamelessmamawellness.com"
 DATA_DIR = os.path.join(os.path.dirname(__file__), "..", "dashboard", "data")
+REPO_ROOT = os.path.join(os.path.dirname(__file__), "..")
 
 KEYWORDS = [
     "Birth trauma therapist San Francisco",
@@ -34,84 +37,58 @@ KEYWORDS = [
 ]
 
 
-def _extract_urls_from_html(html, skip_domains):
+def load_serper_key():
+    """Load Serper API key from .serperAPI file or environment variable."""
+    # Try file first
+    key_file = os.path.join(REPO_ROOT, ".serperAPI")
+    if os.path.exists(key_file):
+        with open(key_file) as f:
+            key = f.read().strip()
+            if key:
+                return key
+
+    # Fall back to environment variable
+    key = os.environ.get("SERPER_API_KEY", "")
+    if key:
+        return key
+
+    return None
+
+
+def search_google(keyword, api_key, max_results=20):
     """
-    Pull every href out of the HTML, decode Yahoo redirects,
-    and return deduplicated real URLs in order of appearance.
-    """
-    seen = set()
-    results = []
-
-    # Strategy 1: Yahoo /RU= redirect URLs (most reliable)
-    for encoded in re.findall(r'/RU=([^/]+)/RK=', html):
-        try:
-            url = urllib.parse.unquote(encoded)
-            if url.startswith("http") and url not in seen:
-                domain = re.search(r'https?://(?:www\.)?([^/]+)', url)
-                if domain and not any(s in domain.group(1) for s in skip_domains):
-                    seen.add(url)
-                    results.append(url)
-        except Exception:
-            pass
-
-    # Strategy 2: all href= attributes (fallback)
-    if not results:
-        for url in re.findall(r'href="(https?://[^"]+)"', html):
-            try:
-                # Skip Yahoo/tracking/ad URLs
-                if any(s in url for s in skip_domains):
-                    continue
-                # Skip Yahoo-internal links
-                if "yahoo.com" in url or "yimg.com" in url:
-                    continue
-                # Skip very short or clearly nav URLs
-                if len(url) < 20:
-                    continue
-                if url not in seen:
-                    seen.add(url)
-                    results.append(url)
-            except Exception:
-                pass
-
-    return results
-
-
-def search_yahoo(keyword, max_results=20):
-    """
-    Search Yahoo (uses Bing index) and return ranked results.
+    Search Google via Serper.dev API and return ranked results.
     Returns list of (position, url, title) tuples.
     """
-    encoded = urllib.parse.quote_plus(keyword)
-    url = f"https://search.yahoo.com/search?p={encoded}&n=20"
+    payload = json.dumps({
+        "q": keyword,
+        "num": max_results,
+        "gl": "us",
+        "hl": "en",
+    }).encode()
 
-    skip_domains = [
-        "yahoo.com", "yimg.com", "oath.com", "verizonmedia.com",
-        "doubleclick.net", "googlesyndication.com",
-    ]
-
-    headers = {
-        "User-Agent": (
-            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
-            "AppleWebKit/537.36 (KHTML, like Gecko) "
-            "Chrome/120.0.0.0 Safari/537.36"
-        ),
-        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-        "Accept-Language": "en-US,en;q=0.5",
-    }
+    req = urllib.request.Request(
+        "https://google.serper.dev/search",
+        data=payload,
+        headers={
+            "X-API-KEY": api_key,
+            "Content-Type": "application/json",
+        },
+        method="POST",
+    )
 
     try:
-        req = urllib.request.Request(url, headers=headers)
         with urllib.request.urlopen(req, timeout=15) as resp:
-            html = resp.read().decode("utf-8", errors="ignore")
-
-        urls = _extract_urls_from_html(html, skip_domains)
+            data = json.load(resp)
 
         results = []
-        for i, u in enumerate(urls[:max_results], start=1):
-            results.append((i, u, ""))
-
-        if not results:
-            print(f"  ⚠️  No results parsed for '{keyword}' — Yahoo may have changed layout")
+        # Organic results
+        for item in data.get("organic", []):
+            position = item.get("position", len(results) + 1)
+            url = item.get("link", "")
+            title = item.get("title", "")
+            if url:
+                results.append((position, url, title))
 
         return results
 
@@ -128,23 +105,26 @@ def find_ranking(keyword, results):
     return None, None, None
 
 
-def check_rankings():
+def check_rankings(api_key):
     """Check all keyword rankings and return results dict."""
     print(f"\n{'='*60}")
     print(f"SEO Ranking Check — {datetime.datetime.now().strftime('%Y-%m-%d %H:%M')}")
     print(f"Target: {TARGET_SITE}")
+    print(f"Source: Google (via Serper.dev)")
     print(f"{'='*60}\n")
 
     results = {}
 
     for keyword in KEYWORDS:
         print(f"Checking: {keyword}...")
-        search_results = search_yahoo(keyword)
+        search_results = search_google(keyword, api_key)
         position, url, title = find_ranking(keyword, search_results)
 
         if position:
             status = "✅" if position <= 3 else "🟡" if position <= 10 else "🔴"
             print(f"  {status} Position #{position}: {url}")
+            if title:
+                print(f"     \"{title}\"")
         else:
             print(f"  ❌ Not found in top {len(search_results)} results")
 
@@ -156,7 +136,7 @@ def check_rankings():
             "total_results_checked": len(search_results),
         }
 
-        time.sleep(2)  # Be polite — don't hammer search engines
+        time.sleep(0.5)  # Small delay to be polite
 
     return results
 
@@ -179,6 +159,7 @@ def save_results(results):
     output = {
         "last_updated": datetime.datetime.now().isoformat(),
         "site": TARGET_SITE,
+        "source": "Google via Serper.dev",
         "rankings": results,
     }
     with open(rankings_file, "w") as f:
@@ -223,7 +204,14 @@ def print_summary(results):
 
 
 if __name__ == "__main__":
-    results = check_rankings()
+    api_key = load_serper_key()
+    if not api_key:
+        print("❌ No Serper API key found.")
+        print("   Create a file called .serperAPI in the repo root with your key.")
+        print("   Get a free key at https://serper.dev (2,500 searches/month free)")
+        exit(1)
+
+    results = check_rankings(api_key)
     save_results(results)
     print_summary(results)
     print("\nDone! Open dashboard/index.html in your browser to see the full report.\n")
