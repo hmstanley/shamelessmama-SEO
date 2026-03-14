@@ -400,19 +400,26 @@
         if (issues.length === 0) {
           container.innerHTML = '<p class="no-issues">✅ No issues found — site looks healthy!</p>';
         } else {
-          issues.slice(0, 10).forEach(item => {
+          const SHOW_INIT = 10;
+          issues.forEach((item, idx) => {
             const row = document.createElement('div');
             row.className = 'issue-row';
+            row.style.display = idx < SHOW_INIT ? '' : 'none';
+            row.dataset.extra = idx >= SHOW_INIT ? '1' : '';
             row.innerHTML = `
               <div class="page-label">${item.page}</div>
               <div>${item.issue}</div>
             `;
             container.appendChild(row);
           });
-          if (issues.length > 10) {
-            const more = document.createElement('div');
-            more.style.cssText = 'font-size:12px;color:#999;padding:8px 0';
-            more.textContent = `+ ${issues.length - 10} more issues`;
+          if (issues.length > SHOW_INIT) {
+            const more = document.createElement('button');
+            more.style.cssText = 'font-size:12px;color:#7a3e2a;background:none;border:none;cursor:pointer;padding:8px 0;text-decoration:underline';
+            more.textContent = `+ ${issues.length - SHOW_INIT} more issues — click to expand`;
+            more.onclick = () => {
+              container.querySelectorAll('[data-extra="1"]').forEach(r => r.style.display = '');
+              more.remove();
+            };
             container.appendChild(more);
           }
         }
