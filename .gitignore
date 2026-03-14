@@ -1,0 +1,15 @@
+# API keys — never commit these
+.serperAPI
+config.json
+
+# Dashboard data (generated locally, not stored in repo)
+dashboard/data/
+
+# Drafts (generated locally)
+drafts/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.DS_Store
