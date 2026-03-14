@@ -23,21 +23,59 @@
       border-bottom: 2px solid #e8d5c4;
     }
 
-    header h1 {
-      font-size: 22px;
+    header h1 { font-size: 22px; color: #7a3e2a; }
+    header .updated { font-size: 13px; color: #999; }
+
+    /* ── Summary bar ─────────────────────────────────────────── */
+    .summary-numbers {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 28px;
+      flex-wrap: wrap;
+    }
+
+    .summary-number {
+      text-align: center;
+      background: white;
+      border-radius: 10px;
+      padding: 14px 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      flex: 1;
+      min-width: 120px;
+    }
+
+    .summary-number .num {
+      font-size: 30px;
+      font-weight: 700;
       color: #7a3e2a;
     }
 
-    header .updated {
-      font-size: 13px;
+    .summary-number .num.green  { color: #28a745; }
+    .summary-number .num.orange { color: #e07b29; }
+    .summary-number .num.red    { color: #dc3545; }
+
+    .summary-number .label {
+      font-size: 11px;
       color: #999;
+      margin-top: 4px;
     }
 
+    /* ── Section headings ───────────────────────────────────── */
+    .section-title {
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #7a3e2a;
+      margin: 32px 0 12px;
+    }
+
+    /* ── Grid ───────────────────────────────────────────────── */
     .grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
       gap: 20px;
-      margin-bottom: 32px;
+      margin-bottom: 24px;
     }
 
     .card {
@@ -57,6 +95,7 @@
       gap: 8px;
     }
 
+    /* ── Rows ───────────────────────────────────────────────── */
     .stat-row {
       display: flex;
       justify-content: space-between;
@@ -65,29 +104,8 @@
       border-bottom: 1px solid #f0e8e0;
       font-size: 14px;
     }
-
     .stat-row:last-child { border-bottom: none; }
-
-    .stat-row .keyword {
-      color: #555;
-      flex: 1;
-      padding-right: 12px;
-    }
-
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-width: 40px;
-      padding: 3px 10px;
-      border-radius: 20px;
-      font-size: 13px;
-      font-weight: 600;
-    }
-
-    .badge.top3    { background: #d4edda; color: #155724; }
-    .badge.top10   { background: #fff3cd; color: #856404; }
-    .badge.notfound { background: #f8d7da; color: #721c24; }
+    .stat-row .keyword { color: #555; flex: 1; padding-right: 12px; }
 
     .issue-row {
       padding: 10px 0;
@@ -95,54 +113,8 @@
       font-size: 13px;
       line-height: 1.5;
     }
-
     .issue-row:last-child { border-bottom: none; }
-
-    .issue-row .page-label {
-      font-size: 11px;
-      color: #999;
-      margin-bottom: 2px;
-    }
-
-    .no-issues {
-      color: #28a745;
-      font-size: 14px;
-      padding: 12px 0;
-    }
-
-    .loading {
-      text-align: center;
-      color: #999;
-      padding: 40px;
-      font-size: 14px;
-    }
-
-    .summary-numbers {
-      display: flex;
-      gap: 16px;
-      margin-bottom: 20px;
-    }
-
-    .summary-number {
-      text-align: center;
-      background: white;
-      border-radius: 10px;
-      padding: 16px 20px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-      flex: 1;
-    }
-
-    .summary-number .num {
-      font-size: 32px;
-      font-weight: 700;
-      color: #7a3e2a;
-    }
-
-    .summary-number .label {
-      font-size: 12px;
-      color: #999;
-      margin-top: 4px;
-    }
+    .issue-row .page-label { font-size: 11px; color: #999; margin-bottom: 2px; }
 
     .dir-row {
       display: flex;
@@ -154,10 +126,42 @@
     }
     .dir-row:last-child { border-bottom: none; }
 
-    .dot-green { color: #28a745; font-size: 18px; }
-    .dot-red   { color: #dc3545; font-size: 18px; }
-    .dot-gray  { color: #999;    font-size: 18px; }
+    /* opportunity rows */
+    .opp-row {
+      padding: 12px 0;
+      border-bottom: 1px solid #f0e8e0;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+    .opp-row:last-child { border-bottom: none; }
+    .opp-row .opp-title { font-weight: 600; color: #444; margin-bottom: 2px; }
+    .opp-row .opp-sub   { font-size: 12px; color: #888; }
+    .opp-row a { color: #7a3e2a; text-decoration: none; }
+    .opp-row a:hover { text-decoration: underline; }
 
+    /* ── Badges ─────────────────────────────────────────────── */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 40px;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .badge.top3     { background: #d4edda; color: #155724; }
+    .badge.top10    { background: #fff3cd; color: #856404; }
+    .badge.notfound { background: #f8d7da; color: #721c24; }
+    .badge.good     { background: #d4edda; color: #155724; }
+    .badge.warn     { background: #fff3cd; color: #856404; }
+
+    /* ── States ─────────────────────────────────────────────── */
+    .no-issues { color: #28a745; font-size: 14px; padding: 12px 0; }
+    .loading   { text-align: center; color: #999; padding: 40px; font-size: 14px; }
+    .empty     { color: #aaa; font-size: 13px; padding: 16px 0; }
+
+    /* ── Buttons ─────────────────────────────────────────────── */
     .refresh-btn {
       display: inline-block;
       margin-top: 24px;
@@ -170,7 +174,6 @@
       cursor: pointer;
       text-decoration: none;
     }
-
     .refresh-btn:hover { background: #9b4f35; }
 
     footer {
@@ -188,9 +191,10 @@
   <span class="updated" id="lastUpdated">Loading...</span>
 </header>
 
+<!-- Summary numbers bar -->
 <div class="summary-numbers" id="summaryNumbers">
   <div class="summary-number">
-    <div class="num" id="numTop3">—</div>
+    <div class="num green" id="numTop3">—</div>
     <div class="label">Keywords in Top 3</div>
   </div>
   <div class="summary-number">
@@ -198,32 +202,103 @@
     <div class="label">Keywords in Top 10</div>
   </div>
   <div class="summary-number">
-    <div class="num" id="numIssues">—</div>
-    <div class="label">Site Issues Found</div>
+    <div class="num red" id="numIssues">—</div>
+    <div class="label">Site Issues</div>
+  </div>
+  <div class="summary-number">
+    <div class="num orange" id="numLinkOpps">—</div>
+    <div class="label">Internal Link Gaps</div>
+  </div>
+  <div class="summary-number">
+    <div class="num orange" id="numMentions">—</div>
+    <div class="label">Unlinked Mentions</div>
+  </div>
+  <div class="summary-number">
+    <div class="num green" id="numQuoted">—</div>
+    <div class="label">Quoted Drafts Ready</div>
   </div>
 </div>
 
+<!-- ── Section 1: Core SEO ─────────────────────────────────── -->
+<div class="section-title">📊 Core SEO Health</div>
 <div class="grid">
 
-  <!-- Keyword Rankings Card -->
+  <!-- Keyword Rankings -->
   <div class="card">
-    <h2>📊 Keyword Rankings</h2>
+    <h2>📊 Keyword Rankings <span style="font-size:11px;font-weight:400;color:#aaa">(Yahoo/Bing)</span></h2>
     <div id="rankingsContainer" class="loading">Loading rankings data...</div>
   </div>
 
-  <!-- Site Issues Card -->
+  <!-- Site Health Issues -->
   <div class="card">
     <h2>🔧 Site Health Issues</h2>
     <div id="issuesContainer" class="loading">Loading audit data...</div>
   </div>
 
-  <!-- Directory Listings Card -->
+  <!-- Directory Listings -->
   <div class="card">
     <h2>📋 Directory Listings</h2>
     <div id="directoriesContainer" class="loading">Loading directory data...</div>
   </div>
 
-  <!-- Quick Wins Card -->
+</div>
+
+<!-- ── Section 2: Internal Links ───────────────────────────── -->
+<div class="section-title">🔗 Internal Link Opportunities</div>
+<div class="grid">
+
+  <div class="card" style="grid-column: 1 / -1">
+    <h2>🔗 Blog Posts Needing Internal Links</h2>
+    <p style="font-size:13px;color:#888;margin-bottom:16px">
+      These blog posts mention your services but don't link to the relevant service pages.
+      Adding links helps Google understand your site and sends readers to your booking page.
+    </p>
+    <div id="internalLinksContainer" class="loading">Loading internal link data...</div>
+  </div>
+
+</div>
+
+<!-- ── Section 3: Outreach ─────────────────────────────────── -->
+<div class="section-title">📣 Outreach Opportunities</div>
+<div class="grid">
+
+  <!-- Unlinked Mentions -->
+  <div class="card">
+    <h2>🌐 Unlinked Web Mentions</h2>
+    <p style="font-size:13px;color:#888;margin-bottom:16px">
+      Sites that mention Marilyn but don't link back. Each one is a chance to get a
+      free backlink — just send a quick email.
+    </p>
+    <div id="mentionsContainer" class="loading">Loading mentions data...</div>
+  </div>
+
+  <!-- Quoted Opportunities -->
+  <div class="card">
+    <h2>✍️ Quoted / HARO Responses</h2>
+    <p style="font-size:13px;color:#888;margin-bottom:16px">
+      Journalist queries relevant to Marilyn's expertise. Draft responses are saved
+      in <code>drafts/quoted/</code> — review and send to get media coverage.
+    </p>
+    <div id="quotedContainer" class="loading">Loading Quoted data...</div>
+  </div>
+
+</div>
+
+<!-- ── Section 4: Content ──────────────────────────────────── -->
+<div class="section-title">📝 Content Opportunities</div>
+<div class="grid">
+
+  <!-- Content Briefs -->
+  <div class="card">
+    <h2>📝 Blog Brief Ideas Ready</h2>
+    <p style="font-size:13px;color:#888;margin-bottom:16px">
+      Keywords your competitors rank for that Marilyn doesn't have a blog post about yet.
+      Full briefs with outlines are saved in <code>drafts/blog_briefs/</code>.
+    </p>
+    <div id="contentBriefsContainer" class="loading">Loading content data...</div>
+  </div>
+
+  <!-- Quick Wins -->
   <div class="card">
     <h2>⚡ Today's Quick Wins</h2>
     <div id="quickWinsContainer">
@@ -239,6 +314,9 @@
       <div class="stat-row">
         <span class="keyword">Check if Psychology Today profile is up to date</span>
       </div>
+      <div class="stat-row">
+        <span class="keyword">Look in <code>drafts/quoted/</code> for any ready-to-send responses</span>
+      </div>
     </div>
   </div>
 
@@ -249,11 +327,18 @@
 </div>
 
 <footer>
-  Data updates daily when monitor scripts are run. | shamelessmamawellness.com
+  Data updates when monitor scripts are run. | shamelessmamawellness.com
 </footer>
 
 <script>
-  // ── Load rankings ──────────────────────────────────────────────
+
+  // ── Helpers ────────────────────────────────────────────────────
+  function noData(containerId, scriptName) {
+    document.getElementById(containerId).innerHTML =
+      `<p class="empty">No data yet.<br>Run <code>python monitor/${scriptName}</code> to collect data.</p>`;
+  }
+
+  // ── Rankings ───────────────────────────────────────────────────
   function loadRankings() {
     fetch('data/rankings.json?t=' + Date.now())
       .then(r => r.json())
@@ -267,7 +352,6 @@
 
         let top3 = 0, top10 = 0;
 
-        // Sort by position (found first, then not found)
         const entries = Object.entries(rankings).sort((a, b) => {
           const pa = a[1].position || 999;
           const pb = b[1].position || 999;
@@ -280,10 +364,10 @@
           row.className = 'stat-row';
 
           let badgeClass = 'notfound';
-          let badgeText = 'Not found';
-          if (pos && pos <= 3)  { badgeClass = 'top3';  badgeText = '#' + pos; top3++; }
-          if (pos && pos > 3 && pos <= 10) { badgeClass = 'top10'; badgeText = '#' + pos; top10++; }
-          if (pos && pos > 10) { badgeClass = 'notfound'; badgeText = '#' + pos; }
+          let badgeText  = 'Not found';
+          if (pos && pos <= 3)           { badgeClass = 'top3';     badgeText = '#' + pos; top3++;  }
+          else if (pos && pos <= 10)     { badgeClass = 'top10';    badgeText = '#' + pos; top10++; }
+          else if (pos && pos > 10)      { badgeClass = 'notfound'; badgeText = '#' + pos; }
 
           row.innerHTML = `
             <span class="keyword">${keyword}</span>
@@ -292,16 +376,17 @@
           container.appendChild(row);
         });
 
-        document.getElementById('numTop3').textContent = top3;
+        document.getElementById('numTop3').textContent  = top3;
         document.getElementById('numTop10').textContent = top10;
       })
       .catch(() => {
-        document.getElementById('rankingsContainer').innerHTML =
-          '<p style="color:#999;font-size:13px;padding:12px 0">No rankings data yet.<br>Run <code>python monitor/seo_monitor.py</code> to collect data.</p>';
+        noData('rankingsContainer', 'seo_monitor.py');
+        document.getElementById('numTop3').textContent  = '—';
+        document.getElementById('numTop10').textContent = '—';
       });
   }
 
-  // ── Load audit ─────────────────────────────────────────────────
+  // ── Audit ──────────────────────────────────────────────────────
   function loadAudit() {
     fetch('data/audit.json?t=' + Date.now())
       .then(r => r.json())
@@ -314,54 +399,254 @@
 
         if (issues.length === 0) {
           container.innerHTML = '<p class="no-issues">✅ No issues found — site looks healthy!</p>';
-          return;
+        } else {
+          issues.slice(0, 10).forEach(item => {
+            const row = document.createElement('div');
+            row.className = 'issue-row';
+            row.innerHTML = `
+              <div class="page-label">${item.page}</div>
+              <div>${item.issue}</div>
+            `;
+            container.appendChild(row);
+          });
+          if (issues.length > 10) {
+            const more = document.createElement('div');
+            more.style.cssText = 'font-size:12px;color:#999;padding:8px 0';
+            more.textContent = `+ ${issues.length - 10} more issues`;
+            container.appendChild(more);
+          }
         }
 
-        issues.slice(0, 10).forEach(item => {
-          const row = document.createElement('div');
-          row.className = 'issue-row';
-          row.innerHTML = `
-            <div class="page-label">${item.page}</div>
-            <div>${item.issue}</div>
-          `;
-          container.appendChild(row);
-        });
-
-        if (issues.length > 10) {
-          const more = document.createElement('div');
-          more.style.cssText = 'font-size:12px;color:#999;padding:8px 0';
-          more.textContent = `+ ${issues.length - 10} more issues`;
-          container.appendChild(more);
-        }
-
-        // Directories
+        // Directories (inside audit.json)
         const dirs = data.directories || {};
         const dirContainer = document.getElementById('directoriesContainer');
         dirContainer.innerHTML = '';
-
+        if (Object.keys(dirs).length === 0) {
+          dirContainer.innerHTML = '<p class="empty">No directory data yet.</p>';
+          return;
+        }
         Object.entries(dirs).forEach(([name, info]) => {
           const row = document.createElement('div');
           row.className = 'dir-row';
           const dot = info.reachable ? '🟢' : '🔴';
-          const statusText = info.reachable ? 'Listed ✓' : 'Not found / check needed';
+          const statusText  = info.reachable ? 'Listed ✓' : 'Check profile';
+          const statusColor = info.reachable ? '#28a745' : '#dc3545';
           row.innerHTML = `
-            <span>${dot} ${name}</span>
-            <span style="font-size:12px;color:${info.reachable ? '#28a745' : '#dc3545'}">${statusText}</span>
+            <span>${dot} <a href="${info.url}" target="_blank" style="color:#333;text-decoration:none">${name}</a></span>
+            <span style="font-size:12px;color:${statusColor}">${statusText}</span>
           `;
           dirContainer.appendChild(row);
         });
       })
       .catch(() => {
-        document.getElementById('issuesContainer').innerHTML =
-          '<p style="color:#999;font-size:13px;padding:12px 0">No audit data yet.<br>Run <code>python monitor/site_audit.py</code> to collect data.</p>';
-        document.getElementById('directoriesContainer').innerHTML =
-          '<p style="color:#999;font-size:13px;padding:12px 0">No directory data yet.</p>';
+        noData('issuesContainer', 'site_audit.py');
+        noData('directoriesContainer', 'site_audit.py');
         document.getElementById('numIssues').textContent = '—';
       });
   }
 
+  // ── Internal Links ─────────────────────────────────────────────
+  function loadInternalLinks() {
+    fetch('data/internal_links.json?t=' + Date.now())
+      .then(r => r.json())
+      .then(data => {
+        document.getElementById('numLinkOpps').textContent = data.total_link_opportunities || 0;
+
+        const container = document.getElementById('internalLinksContainer');
+        container.innerHTML = '';
+
+        const pages = (data.pages || []).filter(p => p.opportunity_count > 0).slice(0, 8);
+
+        if (pages.length === 0) {
+          container.innerHTML = '<p class="no-issues">✅ All blog posts are well-linked!</p>';
+          return;
+        }
+
+        // Simple table layout
+        const table = document.createElement('table');
+        table.style.cssText = 'width:100%;border-collapse:collapse;font-size:13px';
+
+        const header = document.createElement('tr');
+        header.innerHTML = `
+          <th style="text-align:left;padding:6px 8px;color:#aaa;font-weight:500;border-bottom:2px solid #f0e8e0">Blog Post</th>
+          <th style="text-align:left;padding:6px 8px;color:#aaa;font-weight:500;border-bottom:2px solid #f0e8e0">Missing Links</th>
+          <th style="text-align:center;padding:6px 8px;color:#aaa;font-weight:500;border-bottom:2px solid #f0e8e0">Count</th>
+        `;
+        table.appendChild(header);
+
+        pages.forEach(page => {
+          const slug = page.path.split('/').pop();
+          const title = slug.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+          const topOpps = (page.opportunities || []).slice(0, 3)
+            .map(o => `<a href="${o.target_url}" target="_blank" style="color:#7a3e2a;text-decoration:none" title="${o.context}">${o.keyword}</a>`)
+            .join(', ');
+
+          const row = document.createElement('tr');
+          row.style.borderBottom = '1px solid #f8f0e8';
+          row.innerHTML = `
+            <td style="padding:8px 8px;color:#555;max-width:180px">
+              <a href="${page.url}" target="_blank" style="color:#555;text-decoration:none"
+                 title="${page.url}">${title.slice(0, 42)}${title.length > 42 ? '…' : ''}</a>
+            </td>
+            <td style="padding:8px 8px;color:#666">${topOpps || '—'}</td>
+            <td style="padding:8px 8px;text-align:center">
+              <span class="badge warn">${page.opportunity_count}</span>
+            </td>
+          `;
+          table.appendChild(row);
+        });
+
+        container.appendChild(table);
+
+        if (data.pages && data.pages.filter(p => p.opportunity_count > 0).length > 8) {
+          const more = document.createElement('p');
+          more.style.cssText = 'font-size:12px;color:#999;margin-top:10px';
+          more.textContent = `+ more pages with opportunities — see dashboard/data/internal_links.json for full list`;
+          container.appendChild(more);
+        }
+      })
+      .catch(() => {
+        noData('internalLinksContainer', 'internal_links.py');
+        document.getElementById('numLinkOpps').textContent = '—';
+      });
+  }
+
+  // ── Mentions ───────────────────────────────────────────────────
+  function loadMentions() {
+    fetch('data/mentions.json?t=' + Date.now())
+      .then(r => r.json())
+      .then(data => {
+        const opps = data.opportunities || [];
+        document.getElementById('numMentions').textContent = opps.length;
+
+        const container = document.getElementById('mentionsContainer');
+        container.innerHTML = '';
+
+        if (opps.length === 0) {
+          container.innerHTML = '<p class="no-issues">✅ No unlinked mentions found right now.</p>';
+          return;
+        }
+
+        opps.slice(0, 6).forEach(opp => {
+          const row = document.createElement('div');
+          row.className = 'opp-row';
+          const snippet = opp.snippet ? `<div class="opp-sub">"${opp.snippet.slice(0, 120)}…"</div>` : '';
+          row.innerHTML = `
+            <div class="opp-title">
+              <a href="${opp.url}" target="_blank">${opp.domain}</a>
+            </div>
+            ${snippet}
+            <div class="opp-sub" style="margin-top:4px;color:#7a3e2a">
+              → Outreach email drafted — see dashboard/data/mentions.json
+            </div>
+          `;
+          container.appendChild(row);
+        });
+
+        if (opps.length > 6) {
+          const more = document.createElement('p');
+          more.style.cssText = 'font-size:12px;color:#999;margin-top:8px';
+          more.textContent = `+ ${opps.length - 6} more — see mentions.json`;
+          container.appendChild(more);
+        }
+      })
+      .catch(() => {
+        noData('mentionsContainer', 'mention_scanner.py');
+        document.getElementById('numMentions').textContent = '—';
+      });
+  }
+
+  // ── Quoted ─────────────────────────────────────────────────────
+  function loadQuoted() {
+    fetch('data/quoted_opportunities.json?t=' + Date.now())
+      .then(r => r.json())
+      .then(data => {
+        const opps = data.opportunities || [];
+        document.getElementById('numQuoted').textContent = opps.length;
+
+        const container = document.getElementById('quotedContainer');
+        container.innerHTML = '';
+
+        if (opps.length === 0) {
+          container.innerHTML = `
+            <p class="empty">No Quoted drafts yet.<br>
+            Configure Gmail in <code>config.json</code>, then run <code>python monitor/quoted_monitor.py</code>.<br>
+            See <code>docs/quoted-setup.md</code> for setup instructions.</p>`;
+          return;
+        }
+
+        opps.slice(0, 5).forEach(opp => {
+          const row = document.createElement('div');
+          row.className = 'opp-row';
+          const score = opp.relevance_score || 0;
+          const stars = '⭐'.repeat(Math.min(score, 5));
+          row.innerHTML = `
+            <div class="opp-title">${opp.title || 'Query'}</div>
+            <div class="opp-sub">
+              ${stars} Relevance: ${score}/10 &nbsp;|&nbsp;
+              Deadline: ${opp.deadline || 'check email'} &nbsp;|&nbsp;
+              Draft: <code>${opp.draft_file || 'see drafts/quoted/'}</code>
+            </div>
+          `;
+          container.appendChild(row);
+        });
+      })
+      .catch(() => {
+        noData('quotedContainer', 'quoted_monitor.py');
+        document.getElementById('numQuoted').textContent = '—';
+      });
+  }
+
+  // ── Content Briefs ─────────────────────────────────────────────
+  function loadContentBriefs() {
+    fetch('data/content_briefs.json?t=' + Date.now())
+      .then(r => r.json())
+      .then(data => {
+        const briefs = data.briefs || [];
+        const container = document.getElementById('contentBriefsContainer');
+        container.innerHTML = '';
+
+        if (briefs.length === 0) {
+          container.innerHTML = `
+            <p class="empty">No content briefs yet.<br>
+            Run <code>python monitor/content_brief.py</code> to generate blog brief ideas.</p>`;
+          return;
+        }
+
+        briefs.slice(0, 6).forEach(brief => {
+          const row = document.createElement('div');
+          row.className = 'opp-row';
+          const competitors = brief.competitor_titles && brief.competitor_titles.length > 0
+            ? `<div class="opp-sub">Competitors covering this: ${brief.competitor_titles.slice(0,2).join(' | ')}</div>`
+            : '';
+          row.innerHTML = `
+            <div class="opp-title">${brief.keyword}</div>
+            <div class="opp-sub">File: <code>${brief.brief_file || 'see drafts/blog_briefs/'}</code></div>
+            ${competitors}
+          `;
+          container.appendChild(row);
+        });
+
+        if (briefs.length > 6) {
+          const more = document.createElement('p');
+          more.style.cssText = 'font-size:12px;color:#999;margin-top:8px';
+          more.textContent = `+ ${briefs.length - 6} more briefs ready in drafts/blog_briefs/`;
+          container.appendChild(more);
+        }
+      })
+      .catch(() => {
+        noData('contentBriefsContainer', 'content_brief.py');
+      });
+  }
+
+  // ── Boot ───────────────────────────────────────────────────────
   loadRankings();
   loadAudit();
+  loadInternalLinks();
+  loadMentions();
+  loadQuoted();
+  loadContentBriefs();
+
 </script>
 </body>
 </html>
