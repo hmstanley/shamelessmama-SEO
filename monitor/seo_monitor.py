@@ -34,6 +34,48 @@ KEYWORDS = [
 ]
 
 
+def _extract_urls_from_html(html, skip_domains):
+    """
+    Pull every href out of the HTML, decode Yahoo redirects,
+    and return deduplicated real URLs in order of appearance.
+    """
+    seen = set()
+    results = []
+
+    # Strategy 1: Yahoo /RU= redirect URLs (most reliable)
+    for encoded in re.findall(r'/RU=([^/]+)/RK=', html):
+        try:
+            url = urllib.parse.unquote(encoded)
+            if url.startswith("http") and url not in seen:
+                domain = re.search(r'https?://(?:www\.)?([^/]+)', url)
+                if domain and not any(s in domain.group(1) for s in skip_domains):
+                    seen.add(url)
+                    results.append(url)
+        except Exception:
+            pass
+
+    # Strategy 2: all href= attributes (fallback)
+    if not results:
+        for url in re.findall(r'href="(https?://[^"]+)"', html):
+            try:
+                # Skip Yahoo/tracking/ad URLs
+                if any(s in url for s in skip_domains):
+                    continue
+                # Skip Yahoo-internal links
+                if "yahoo.com" in url or "yimg.com" in url:
+                    continue
+                # Skip very short or clearly nav URLs
+                if len(url) < 20:
+                    continue
+                if url not in seen:
+                    seen.add(url)
+                    results.append(url)
+            except Exception:
+                pass
+
+    return results
+
+
 def search_yahoo(keyword, max_results=20):
     """
     Search Yahoo (uses Bing index) and return ranked results.
@@ -42,12 +84,19 @@ def search_yahoo(keyword, max_results=20):
     encoded = urllib.parse.quote_plus(keyword)
     url = f"https://search.yahoo.com/search?p={encoded}&n=20"
 
+    skip_domains = [
+        "yahoo.com", "yimg.com", "oath.com", "verizonmedia.com",
+        "doubleclick.net", "googlesyndication.com",
+    ]
+
     headers = {
         "User-Agent": (
             "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
             "AppleWebKit/537.36 (KHTML, like Gecko) "
             "Chrome/120.0.0.0 Safari/537.36"
-        )
+        ),
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        "Accept-Language": "en-US,en;q=0.5",
     }
 
     try:
@@ -55,20 +104,14 @@ def search_yahoo(keyword, max_results=20):
         with urllib.request.urlopen(req, timeout=15) as resp:
             html = resp.read().decode("utf-8", errors="ignore")
 
-        # Extract result URLs and titles
-        results = []
-        # Yahoo result pattern
-        pattern = r'<div class="compTitle[^"]*".*?<a[^>]+href="([^"]+)"[^>]*>([^<]*(?:<[^/][^>]*>[^<]*)*)</a>'
-        matches = re.findall(pattern, html, re.DOTALL)
+        urls = _extract_urls_from_html(html, skip_domains)
 
-        position = 1
-        for href, title_html in matches:
-            title = re.sub(r"<[^>]+>", "", title_html).strip()
-            if href.startswith("http") and "yahoo.com" not in href:
-                results.append((position, href, title))
-                position += 1
-            if position > max_results:
-                break
+        results = []
+        for i, u in enumerate(urls[:max_results], start=1):
+            results.append((i, u, ""))
+
+        if not results:
+            print(f"  ⚠️  No results parsed for '{keyword}' — Yahoo may have changed layout")
 
         return results
 
