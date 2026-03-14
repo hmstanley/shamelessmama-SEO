@@ -44,15 +44,22 @@ SKIP_DOMAINS = [
 
 
 def search_mentions(query, max_results=10):
-    """Search Yahoo for mentions and return result URLs + titles."""
+    """Search Yahoo for mentions and return result URLs."""
     encoded = urllib.parse.quote_plus(query)
     url = f"https://search.yahoo.com/search?p={encoded}&n=20"
+
+    skip_domains = [
+        "yahoo.com", "yimg.com", "oath.com", "verizonmedia.com",
+        "doubleclick.net", "googlesyndication.com",
+    ]
 
     headers = {
         "User-Agent": (
             "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
             "AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36"
-        )
+        ),
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        "Accept-Language": "en-US,en;q=0.5",
     }
 
     try:
@@ -60,25 +67,28 @@ def search_mentions(query, max_results=10):
         with urllib.request.urlopen(req, timeout=15) as resp:
             html = resp.read().decode("utf-8", errors="ignore")
 
-        # Extract result URLs — Yahoo format
+        seen = set()
         results = []
-        # Find result links (Yahoo wraps them in /RU= redirect URLs)
-        ru_pattern = r"/RU=([^/]+)/RK="
-        matches = re.findall(ru_pattern, html)
-        for encoded_url in matches[:max_results]:
+
+        # Strategy 1: Yahoo /RU= redirect URLs
+        for enc in re.findall(r'/RU=([^/]+)/RK=', html):
             try:
-                decoded = urllib.parse.unquote(encoded_url)
-                if decoded.startswith("http"):
-                    results.append(decoded)
+                decoded = urllib.parse.unquote(enc)
+                if decoded.startswith("http") and decoded not in seen:
+                    domain = re.search(r'https?://(?:www\.)?([^/]+)', decoded)
+                    if domain and not any(s in domain.group(1) for s in skip_domains):
+                        seen.add(decoded)
+                        results.append(decoded)
             except Exception:
                 pass
 
-        # Fallback: direct href extraction
+        # Strategy 2: raw href fallback
         if not results:
-            href_pattern = r'href="(https?://[^"]+)"'
-            hrefs = re.findall(href_pattern, html)
-            for href in hrefs:
-                if "yahoo" not in href and "yimg" not in href:
+            for href in re.findall(r'href="(https?://[^"]+)"', html):
+                if any(s in href for s in skip_domains):
+                    continue
+                if href not in seen and len(href) > 20:
+                    seen.add(href)
                     results.append(href)
 
         return results[:max_results]
