@@ -16,8 +16,20 @@ import re
 import time
 
 DATA_DIR = os.path.join(os.path.dirname(__file__), "..", "dashboard", "data")
+REPO_ROOT = os.path.join(os.path.dirname(__file__), "..")
 
 SITE_DOMAIN = "shamelessmamawellness.com"
+
+
+def load_serper_key():
+    """Load Serper API key from .serperAPI file or environment variable."""
+    key_file = os.path.join(REPO_ROOT, ".serperAPI")
+    if os.path.exists(key_file):
+        with open(key_file) as f:
+            key = f.read().strip()
+            if key:
+                return key
+    return os.environ.get("SERPER_API_KEY", "")
 
 # Search queries to find mentions
 MENTION_QUERIES = [
@@ -43,53 +55,34 @@ SKIP_DOMAINS = [
 ]
 
 
-def search_mentions(query, max_results=10):
-    """Search Yahoo for mentions and return result URLs."""
-    encoded = urllib.parse.quote_plus(query)
-    url = f"https://search.yahoo.com/search?p={encoded}&n=20"
+def search_mentions(query, api_key, max_results=10):
+    """Search Google via Serper.dev for mentions and return result URLs."""
+    payload = json.dumps({
+        "q": query,
+        "num": max_results,
+        "gl": "us",
+        "hl": "en",
+    }).encode()
 
-    skip_domains = [
-        "yahoo.com", "yimg.com", "oath.com", "verizonmedia.com",
-        "doubleclick.net", "googlesyndication.com",
-    ]
-
-    headers = {
-        "User-Agent": (
-            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
-            "AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36"
-        ),
-        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-        "Accept-Language": "en-US,en;q=0.5",
-    }
+    req = urllib.request.Request(
+        "https://google.serper.dev/search",
+        data=payload,
+        headers={
+            "X-API-KEY": api_key,
+            "Content-Type": "application/json",
+        },
+        method="POST",
+    )
 
     try:
-        req = urllib.request.Request(url, headers=headers)
         with urllib.request.urlopen(req, timeout=15) as resp:
-            html = resp.read().decode("utf-8", errors="ignore")
+            data = json.load(resp)
 
-        seen = set()
         results = []
-
-        # Strategy 1: Yahoo /RU= redirect URLs
-        for enc in re.findall(r'/RU=([^/]+)/RK=', html):
-            try:
-                decoded = urllib.parse.unquote(enc)
-                if decoded.startswith("http") and decoded not in seen:
-                    domain = re.search(r'https?://(?:www\.)?([^/]+)', decoded)
-                    if domain and not any(s in domain.group(1) for s in skip_domains):
-                        seen.add(decoded)
-                        results.append(decoded)
-            except Exception:
-                pass
-
-        # Strategy 2: raw href fallback
-        if not results:
-            for href in re.findall(r'href="(https?://[^"]+)"', html):
-                if any(s in href for s in skip_domains):
-                    continue
-                if href not in seen and len(href) > 20:
-                    seen.add(href)
-                    results.append(href)
+        for item in data.get("organic", []):
+            url = item.get("link", "")
+            if url:
+                results.append(url)
 
         return results[:max_results]
 
@@ -167,13 +160,19 @@ def run():
     print(f"Looking for: mentions of Marilyn / Shameless Mama Wellness")
     print(f"{'='*60}\n")
 
+    api_key = load_serper_key()
+    if not api_key:
+        print("❌ No Serper API key found.")
+        print("   Create a file called .serperAPI in the repo root with your key.")
+        return {}
+
     known_linked = load_known_links()
     all_mentions = []
     unlinked_opportunities = []
 
     for query in MENTION_QUERIES:
         print(f"Searching: {query}")
-        urls = search_mentions(query)
+        urls = search_mentions(query, api_key)
         print(f"  Found {len(urls)} results\n")
 
         for url in urls:
