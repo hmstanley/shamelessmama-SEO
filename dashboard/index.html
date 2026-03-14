@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Shameless Mama Wellness — SEO Dashboard</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #fdf6f0;
+      color: #333;
+      padding: 24px;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 32px;
+      padding-bottom: 16px;
+      border-bottom: 2px solid #e8d5c4;
+    }
+
+    header h1 {
+      font-size: 22px;
+      color: #7a3e2a;
+    }
+
+    header .updated {
+      font-size: 13px;
+      color: #999;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 20px;
+      margin-bottom: 32px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+
+    .card h2 {
+      font-size: 15px;
+      font-weight: 600;
+      color: #7a3e2a;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .stat-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid #f0e8e0;
+      font-size: 14px;
+    }
+
+    .stat-row:last-child { border-bottom: none; }
+
+    .stat-row .keyword {
+      color: #555;
+      flex: 1;
+      padding-right: 12px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 40px;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .badge.top3    { background: #d4edda; color: #155724; }
+    .badge.top10   { background: #fff3cd; color: #856404; }
+    .badge.notfound { background: #f8d7da; color: #721c24; }
+
+    .issue-row {
+      padding: 10px 0;
+      border-bottom: 1px solid #f0e8e0;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .issue-row:last-child { border-bottom: none; }
+
+    .issue-row .page-label {
+      font-size: 11px;
+      color: #999;
+      margin-bottom: 2px;
+    }
+
+    .no-issues {
+      color: #28a745;
+      font-size: 14px;
+      padding: 12px 0;
+    }
+
+    .loading {
+      text-align: center;
+      color: #999;
+      padding: 40px;
+      font-size: 14px;
+    }
+
+    .summary-numbers {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .summary-number {
+      text-align: center;
+      background: white;
+      border-radius: 10px;
+      padding: 16px 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      flex: 1;
+    }
+
+    .summary-number .num {
+      font-size: 32px;
+      font-weight: 700;
+      color: #7a3e2a;
+    }
+
+    .summary-number .label {
+      font-size: 12px;
+      color: #999;
+      margin-top: 4px;
+    }
+
+    .dir-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid #f0e8e0;
+      font-size: 14px;
+    }
+    .dir-row:last-child { border-bottom: none; }
+
+    .dot-green { color: #28a745; font-size: 18px; }
+    .dot-red   { color: #dc3545; font-size: 18px; }
+    .dot-gray  { color: #999;    font-size: 18px; }
+
+    .refresh-btn {
+      display: inline-block;
+      margin-top: 24px;
+      padding: 10px 24px;
+      background: #7a3e2a;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    .refresh-btn:hover { background: #9b4f35; }
+
+    footer {
+      margin-top: 40px;
+      text-align: center;
+      font-size: 12px;
+      color: #bbb;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>🌸 Shameless Mama Wellness — SEO Dashboard</h1>
+  <span class="updated" id="lastUpdated">Loading...</span>
+</header>
+
+<div class="summary-numbers" id="summaryNumbers">
+  <div class="summary-number">
+    <div class="num" id="numTop3">—</div>
+    <div class="label">Keywords in Top 3</div>
+  </div>
+  <div class="summary-number">
+    <div class="num" id="numTop10">—</div>
+    <div class="label">Keywords in Top 10</div>
+  </div>
+  <div class="summary-number">
+    <div class="num" id="numIssues">—</div>
+    <div class="label">Site Issues Found</div>
+  </div>
+</div>
+
+<div class="grid">
+
+  <!-- Keyword Rankings Card -->
+  <div class="card">
+    <h2>📊 Keyword Rankings</h2>
+    <div id="rankingsContainer" class="loading">Loading rankings data...</div>
+  </div>
+
+  <!-- Site Issues Card -->
+  <div class="card">
+    <h2>🔧 Site Health Issues</h2>
+    <div id="issuesContainer" class="loading">Loading audit data...</div>
+  </div>
+
+  <!-- Directory Listings Card -->
+  <div class="card">
+    <h2>📋 Directory Listings</h2>
+    <div id="directoriesContainer" class="loading">Loading directory data...</div>
+  </div>
+
+  <!-- Quick Wins Card -->
+  <div class="card">
+    <h2>⚡ Today's Quick Wins</h2>
+    <div id="quickWinsContainer">
+      <div class="stat-row">
+        <span class="keyword">Check Google Business Profile for new reviews</span>
+      </div>
+      <div class="stat-row">
+        <span class="keyword">Reply to any unanswered client inquiries</span>
+      </div>
+      <div class="stat-row">
+        <span class="keyword">Share your latest blog post on Instagram</span>
+      </div>
+      <div class="stat-row">
+        <span class="keyword">Check if Psychology Today profile is up to date</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div style="text-align:center">
+  <a class="refresh-btn" href="javascript:location.reload()">↻ Refresh Dashboard</a>
+</div>
+
+<footer>
+  Data updates daily when monitor scripts are run. | shamelessmamawellness.com
+</footer>
+
+<script>
+  // ── Load rankings ──────────────────────────────────────────────
+  function loadRankings() {
+    fetch('data/rankings.json?t=' + Date.now())
+      .then(r => r.json())
+      .then(data => {
+        document.getElementById('lastUpdated').textContent =
+          'Last updated: ' + new Date(data.last_updated).toLocaleString();
+
+        const rankings = data.rankings || {};
+        const container = document.getElementById('rankingsContainer');
+        container.innerHTML = '';
+
+        let top3 = 0, top10 = 0;
+
+        // Sort by position (found first, then not found)
+        const entries = Object.entries(rankings).sort((a, b) => {
+          const pa = a[1].position || 999;
+          const pb = b[1].position || 999;
+          return pa - pb;
+        });
+
+        entries.forEach(([keyword, info]) => {
+          const pos = info.position;
+          const row = document.createElement('div');
+          row.className = 'stat-row';
+
+          let badgeClass = 'notfound';
+          let badgeText = 'Not found';
+          if (pos && pos <= 3)  { badgeClass = 'top3';  badgeText = '#' + pos; top3++; }
+          if (pos && pos > 3 && pos <= 10) { badgeClass = 'top10'; badgeText = '#' + pos; top10++; }
+          if (pos && pos > 10) { badgeClass = 'notfound'; badgeText = '#' + pos; }
+
+          row.innerHTML = `
+            <span class="keyword">${keyword}</span>
+            <span class="badge ${badgeClass}">${badgeText}</span>
+          `;
+          container.appendChild(row);
+        });
+
+        document.getElementById('numTop3').textContent = top3;
+        document.getElementById('numTop10').textContent = top10;
+      })
+      .catch(() => {
+        document.getElementById('rankingsContainer').innerHTML =
+          '<p style="color:#999;font-size:13px;padding:12px 0">No rankings data yet.<br>Run <code>python monitor/seo_monitor.py</code> to collect data.</p>';
+      });
+  }
+
+  // ── Load audit ─────────────────────────────────────────────────
+  function loadAudit() {
+    fetch('data/audit.json?t=' + Date.now())
+      .then(r => r.json())
+      .then(data => {
+        const issues = data.total_issues || [];
+        const container = document.getElementById('issuesContainer');
+        container.innerHTML = '';
+
+        document.getElementById('numIssues').textContent = issues.length;
+
+        if (issues.length === 0) {
+          container.innerHTML = '<p class="no-issues">✅ No issues found — site looks healthy!</p>';
+          return;
+        }
+
+        issues.slice(0, 10).forEach(item => {
+          const row = document.createElement('div');
+          row.className = 'issue-row';
+          row.innerHTML = `
+            <div class="page-label">${item.page}</div>
+            <div>${item.issue}</div>
+          `;
+          container.appendChild(row);
+        });
+
+        if (issues.length > 10) {
+          const more = document.createElement('div');
+          more.style.cssText = 'font-size:12px;color:#999;padding:8px 0';
+          more.textContent = `+ ${issues.length - 10} more issues`;
+          container.appendChild(more);
+        }
+
+        // Directories
+        const dirs = data.directories || {};
+        const dirContainer = document.getElementById('directoriesContainer');
+        dirContainer.innerHTML = '';
+
+        Object.entries(dirs).forEach(([name, info]) => {
+          const row = document.createElement('div');
+          row.className = 'dir-row';
+          const dot = info.reachable ? '🟢' : '🔴';
+          const statusText = info.reachable ? 'Listed ✓' : 'Not found / check needed';
+          row.innerHTML = `
+            <span>${dot} ${name}</span>
+            <span style="font-size:12px;color:${info.reachable ? '#28a745' : '#dc3545'}">${statusText}</span>
+          `;
+          dirContainer.appendChild(row);
+        });
+      })
+      .catch(() => {
+        document.getElementById('issuesContainer').innerHTML =
+          '<p style="color:#999;font-size:13px;padding:12px 0">No audit data yet.<br>Run <code>python monitor/site_audit.py</code> to collect data.</p>';
+        document.getElementById('directoriesContainer').innerHTML =
+          '<p style="color:#999;font-size:13px;padding:12px 0">No directory data yet.</p>';
+        document.getElementById('numIssues').textContent = '—';
+      });
+  }
+
+  loadRankings();
+  loadAudit();
+</script>
+</body>
+</html>
