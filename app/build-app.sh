@@ -23,25 +23,24 @@ APPLESCRIPT=$(cat << SCRIPT
 
 set repoPath to "${REPO_DIR}"
 set logFile to repoPath & "/app/run.log"
-set port to "8080"
 
 -- Notify user we're starting
 display notification "Running daily check — this takes a few minutes..." with title "🌸 SEO Dashboard"
 
 -- Kill any existing server on port 8080
-do shell script "lsof -ti tcp:" & port & " | xargs kill -9 2>/dev/null; exit 0"
+do shell script "lsof -ti tcp:8080 | xargs kill -9 2>/dev/null; exit 0"
 
 -- Run all monitor scripts
 do shell script "cd " & quoted form of repoPath & " && python3 monitor/run_all.py > " & quoted form of logFile & " 2>&1; exit 0"
 
 -- Start web server in background
-do shell script "cd " & quoted form of repoPath & " && python3 -m http.server " & port & " --directory dashboard >> " & quoted form of logFile & " 2>&1 &"
+do shell script "cd " & quoted form of repoPath & " && python3 -m http.server 8080 --directory dashboard >> " & quoted form of logFile & " 2>&1 &"
 
 -- Small pause for server to start
 delay 2
 
 -- Open browser
-open location "http://localhost:" & port
+open location "http://localhost:8080"
 
 -- Done notification
 display notification "Dashboard is ready! Check your browser." with title "🌸 SEO Dashboard"
