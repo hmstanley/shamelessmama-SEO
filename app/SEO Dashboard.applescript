@@ -1,23 +1,24 @@
 -- SEO Dashboard
 -- Paste this into Script Editor, then File > Export > Application
 
--- Find the repo folder (same folder this script lives in, one level up)
+-- ⚠️ UPDATE THIS LINE if the repo is in a different folder
 set repoPath to (POSIX path of (path to home folder)) & "shamelessmama-SEO"
 
-display notification "Running daily check — takes a few minutes..." with title "🌸 SEO Dashboard"
+set logFile to repoPath & "/app/run.log"
 
 -- Kill anything already on port 8080
 do shell script "lsof -ti tcp:8080 | xargs kill -9 2>/dev/null; true"
 
--- Run all monitor scripts
-do shell script "/usr/bin/python3 " & quoted form of (repoPath & "/monitor/run_all.py") & " > " & quoted form of (repoPath & "/app/run.log") & " 2>&1; true"
+-- Start web server immediately (use existing data from last run)
+do shell script "/usr/bin/python3 -m http.server 8080 --directory " & quoted form of (repoPath & "/dashboard") & " > " & quoted form of logFile & " 2>&1 &"
 
--- Start local web server in background
-do shell script "/usr/bin/python3 -m http.server 8080 --directory " & quoted form of (repoPath & "/dashboard") & " >> " & quoted form of (repoPath & "/app/run.log") & " 2>&1 &"
+delay 1
 
-delay 2
-
--- Open in browser
+-- Open browser right away — shows existing data while update runs in background
 open location "http://localhost:8080"
 
-display notification "Dashboard is open in your browser!" with title "🌸 SEO Dashboard"
+-- Now kick off the data update in the background (won't block)
+do shell script "cd " & quoted form of repoPath & " && nohup /usr/bin/python3 monitor/run_all.py >> " & quoted form of logFile & " 2>&1 &"
+
+-- Tell user what's happening
+display notification "Dashboard open! Data is refreshing in the background — takes 2-3 min." with title "🌸 SEO Dashboard"
