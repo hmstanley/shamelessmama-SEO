@@ -59,6 +59,68 @@ The dashboard runs as a pipe inside [Home AI](http://192.168.1.197:8080) (Open W
 | `audit.json` | `site_audit.py` |
 | `daily_digest.json` | `run_daily.py` |
 
+## Configuration — What to Edit and Where
+
+### Add or remove tracked keywords
+
+Keywords live in **two separate files** — keep them in sync.
+
+**`monitor/seo_monitor.py` — `KEYWORDS` list (~line 22)**
+Rankings are checked for these. Add/remove strings from the list.
+
+**`monitor/competitor_monitor.py` — `KEYWORDS` list (~line 28)**
+These drive the competitor SERP analysis and keyword gap report. Same format — one string per line.
+
+---
+
+### Block a domain from appearing in the competitor dashboard
+
+Three files share a `DIRECTORY_DOMAINS` set. Add the domain to all three to fully suppress it:
+
+- `monitor/competitor_monitor.py` — `DIRECTORY_DOMAINS` (~line 40)
+- `monitor/competitor_keyword_spy.py` — `DIRECTORY_DOMAINS` (~line 28)
+- `monitor/seo_pipe.py` — `DIRECTORY_DOMAINS` (~line 28)
+
+---
+
+### Competitor keyword spy settings
+
+All in `monitor/competitor_keyword_spy.py`:
+
+| Constant | Line | What it controls |
+|----------|------|-----------------|
+| `MAX_COMPETITORS` | ~54 | How many competitor domains to crawl (default: 8) |
+| `MAX_PAGES_PER_COMPETITOR` | ~53 | Max pages to scan per competitor (default: 50) |
+| `SKIP_SEGMENTS` | ~41 | URL path words that mark non-content pages (about, contact, faq, etc.) — add words here to filter out junk pages |
+| `CREDENTIAL_WORDS` | ~50 | Words that identify therapist bio/staff pages (lmft, lcsw, phd, etc.) |
+| `MAX_KEYWORD_WORDS` | ~52 | Max words kept from a URL slug — prevents long blog titles becoming noisy keywords (default: 6) |
+
+---
+
+### Dashboard chat triggers
+
+In `monitor/seo_pipe.py`:
+
+- **`TRIGGERS`** (~line 16) — phrases that show the full dashboard in chat
+- **`EXPORT_TRIGGERS`** (~line 23) — phrases that generate the PDF export file
+
+After editing `seo_pipe.py`, push it to Open WebUI:
+```bash
+python3 monitor/push_pipe.py   # or re-paste via Admin → Functions
+```
+
+---
+
+### API keys
+
+| Key | Location | Used by |
+|-----|----------|---------|
+| Serper.dev | `.serperAPI` in repo root | `seo_monitor.py`, `competitor_monitor.py` |
+| Open PageRank | `~/.openpagerank-api-key` | `competitor_monitor.py` |
+| Amazon cookies | `~/.amazon_cookies.json` | `amazon_monitor.py` |
+
+---
+
 ## Setup
 
 ```bash
