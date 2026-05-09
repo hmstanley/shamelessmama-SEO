@@ -25,17 +25,9 @@ OPR_KEY_FILE = os.path.expanduser("~/.openpagerank-api-key")
 OUTPUT_FILE = os.path.join(DATA_DIR, "competitors.json")
 GAP_FILE = os.path.join(DATA_DIR, "keyword_gap.json")
 
-KEYWORDS = [
-    "birth trauma therapist San Francisco",
-    "postpartum therapist San Francisco Bay Area",
-    "EMDR therapist moms California",
-    "postpartum depression therapist California",
-    "prenatal therapist San Francisco",
-    "perinatal mental health therapist California",
-    "birth trauma therapist online California",
-    "postpartum anxiety therapist Bay Area",
-    "mother wound therapist California",
-]
+_kw_file = os.path.join(REPO_ROOT, "config", "keywords.json")
+with open(_kw_file) as _f:
+    KEYWORDS = json.load(_f)["competitor_analysis"]
 
 DIRECTORY_DOMAINS = {
     "psychologytoday.com", "zencare.co", "therapyden.com", "yelp.com",

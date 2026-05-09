@@ -63,13 +63,25 @@ The dashboard runs as a pipe inside [Home AI](http://192.168.1.197:8080) (Open W
 
 ### Add or remove tracked keywords
 
-Keywords live in **two separate files** — keep them in sync.
+**Edit one file: `config/keywords.json`**
 
-**`monitor/seo_monitor.py` — `KEYWORDS` list (~line 22)**
-Rankings are checked for these. Add/remove strings from the list.
+```json
+{
+  "rankings": [
+    "Birth trauma therapist San Francisco",
+    "..."
+  ],
+  "competitor_analysis": [
+    "birth trauma therapist San Francisco",
+    "..."
+  ]
+}
+```
 
-**`monitor/competitor_monitor.py` — `KEYWORDS` list (~line 28)**
-These drive the competitor SERP analysis and keyword gap report. Same format — one string per line.
+- **`rankings`** — keywords checked for position in Google (used by `seo_monitor.py`)
+- **`competitor_analysis`** — keywords used to find and benchmark competitors (used by `competitor_monitor.py`) — these cost Serper credits, so keep this list focused
+
+Both scripts load from this file automatically. No code changes needed — just edit the JSON and run `python monitor/run_daily.py`.
 
 ---
 

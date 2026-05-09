@@ -19,22 +19,9 @@ TARGET_SITE = "shamelessmamawellness.com"
 DATA_DIR = os.path.join(os.path.dirname(__file__), "..", "dashboard", "data")
 REPO_ROOT = os.path.join(os.path.dirname(__file__), "..")
 
-KEYWORDS = [
-    "Birth trauma therapist San Francisco",
-    "Postpartum therapist San Francisco Bay Area",
-    "EMDR therapist moms California",
-    "Postpartum depression therapist California",
-    "Prenatal therapist San Francisco",
-    "EMDR intensive birth trauma",
-    "Perinatal mental health therapist California",
-    "Birth trauma therapist online California",
-    "Postpartum anxiety therapist Bay Area",
-    "Mother wound therapist California",
-    "Postpartum therapist California",
-    "Birth trauma therapist Sacramento",
-    "Shameless Mama Wellness",
-    "Marilyn Coleman therapist",
-]
+_kw_file = os.path.join(REPO_ROOT, "config", "keywords.json")
+with open(_kw_file) as _f:
+    KEYWORDS = json.load(_f)["rankings"]
 
 
 def load_serper_key():
