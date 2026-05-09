@@ -15,6 +15,9 @@ import datetime
 import os
 import re
 import time
+import sys
+sys.path.insert(0, os.path.dirname(__file__))
+from credits_tracker import track_usage, print_status as print_credit_status
 
 CONFIG_FILE = os.path.join(os.path.dirname(__file__), "..", "config.json")
 DATA_DIR = os.path.join(os.path.dirname(__file__), "..", "dashboard", "data")
@@ -176,7 +179,20 @@ Be specific and practical — this brief should let Marilyn (or an AI) write the
         )
         with urllib.request.urlopen(req, timeout=45) as resp:
             result = json.load(resp)
-            return result["content"][0]["text"]
+
+        # Track token usage for credit monitoring
+        usage = result.get("usage", {})
+        credit_info = track_usage(
+            script_name="content_brief.py",
+            model=result.get("model", "claude-opus-4-5"),
+            input_tokens=usage.get("input_tokens", 0),
+            output_tokens=usage.get("output_tokens", 0),
+        )
+        if credit_info["low_balance"]:
+            print(f"  ⚠️  Low credits: ~${credit_info['estimated_remaining']:.2f} remaining "
+                  f"(auto-renew will fire soon)")
+
+        return result["content"][0]["text"]
 
     except Exception as e:
         return f"""[AI brief generation not available — add anthropic_api_key to config.json]
@@ -320,6 +336,9 @@ def run(num_briefs=3):
     print(f"Find them in: drafts/blog_briefs/")
     print(f"{len(KEYWORD_OPPORTUNITIES) - num_briefs} more opportunities waiting for next run")
     print(f"{'='*60}\n")
+
+    if use_ai:
+        print_credit_status()
 
     return briefs_generated
 
