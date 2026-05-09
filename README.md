@@ -4,37 +4,88 @@ Agentic SEO monitoring for [shamelessmamawellness.com](https://www.shamelessmama
 
 ## What This Does
 
-- Tracks keyword rankings daily across search engines
-- Monitors website technical health (schema, page speed, crawl errors)
-- Checks directory listings (Psychology Today, Healthgrades, Google Business Profile)
-- Generates a simple browser-based dashboard Marilyn can open each morning
-- Suggests blog topics based on trending searches in the perinatal mental health space
+- Tracks keyword rankings daily via Serper.dev
+- Monitors technical site health (schema, meta tags, page speed signals)
+- Pulls Google Search Console data (clicks, impressions, position trends, quick wins)
+- Analyzes competitor landscape with authority scores and difficulty ratings
+- Reverse-engineers competitor keyword targets via sitemap crawl and matches them against our pages
+- Generates keyword gap reports (gaps, improvements, wins, new keyword opportunities)
+- Surfaces all findings in a live chat dashboard via Open WebUI
+- Exports the full dashboard to a print-ready HTML file (PDF via browser print)
+- Runs automatically at 7am and 3pm via launchd
 
-## Docs (Start Here)
+## Monitor Scripts
 
-- [`docs/executive-summary.md`](docs/executive-summary.md) — Big picture: what's working, what's not, what the impact is
-- [`docs/what-to-fix.md`](docs/what-to-fix.md) — Step-by-step non-technical fix guide for Marilyn
+| Script | What it does |
+|--------|-------------|
+| `monitor/run_daily.py` | Orchestrates all monitors, writes `daily_digest.json` |
+| `monitor/seo_monitor.py` | Keyword ranking checks via Serper |
+| `monitor/competitor_monitor.py` | SERP competitor analysis, authority scores, keyword gap report |
+| `monitor/competitor_keyword_spy.py` | Sitemap crawl of top competitors, keyword extraction, page matching |
+| `monitor/gsc_monitor.py` | Google Search Console weekly trends and quick wins |
+| `monitor/site_audit.py` | Technical SEO health (schema, meta, page speed) |
+| `monitor/email_monitor.py` | iCloud IMAP digest for Marilyn's inbox |
+| `monitor/amazon_monitor.py` | Amazon order history via Playwright |
+| `monitor/gsc_auth.py` | OAuth2 helper for GSC API |
+| `monitor/content_brief.py` | Blog topic and content brief generator |
 
-## Dashboard
+## Open WebUI Dashboard (seo_pipe.py)
 
-Open `dashboard/index.html` in any browser — no installation required.
+The dashboard runs as a pipe inside [Home AI](http://192.168.1.197:8080) (Open WebUI). Trigger it by typing any of:
 
-## Scripts (for automation)
+> `SEO dashboard` · `show my rankings` · `keyword gap` · `competitor keywords` · `what needs fixing` · `export PDF`
 
-- `monitor/seo_monitor.py` — Daily keyword ranking checks
-- `monitor/site_audit.py` — Technical SEO health check
-- `monitor/keyword_suggestions.py` — Trending topic suggestions
-- `monitor/run_all.py` — Runs everything and updates dashboard data
+**Sections:**
+- 📊 Google Search Console — weekly clicks, impressions, position, quick wins
+- 🔑 Keyword Rankings — position + week-over-week change for all tracked keywords
+- 🏆 Competitor Landscape — real competitors only (directories filtered), authority scores, difficulty ratings
+- 🎯 Keyword Gap Analysis — gaps, improvements, wins with specific action recommendations
+- 🔍 Competitor Keyword Intelligence — keywords competitors rank for, matched against our pages (❌ gap · 🟡 partial · ✅ covered)
+- 🏥 Site Health — per-page technical issues
+- 📄 Top Pages — last 28 days from GSC
+- 🔧 Fix List — prioritized action items
+
+**PDF Export:** say `export PDF` → opens a styled HTML file on `~/Desktop` → open in browser → Cmd+P → Save as PDF.
+
+## Data Files (dashboard/data/)
+
+| File | Written by |
+|------|-----------|
+| `rankings.json` | `seo_monitor.py` |
+| `competitors.json` | `competitor_monitor.py` |
+| `keyword_gap.json` | `competitor_monitor.py` |
+| `competitor_keywords.json` | `competitor_keyword_spy.py` |
+| `gsc.json` | `gsc_monitor.py` |
+| `audit.json` | `site_audit.py` |
+| `daily_digest.json` | `run_daily.py` |
 
 ## Setup
 
 ```bash
 pip install -r requirements.txt
-python monitor/run_all.py
-# Then open dashboard/index.html in your browser
+
+# GSC auth (one-time)
+python monitor/gsc_auth.py
+
+# Run everything manually
+python monitor/run_daily.py
 ```
 
-## Target Keywords Being Tracked
+API keys required:
+- `.serperAPI` in repo root — Serper.dev key
+- `~/.openpagerank-api-key` — Open PageRank key
+- `~/.amazon_cookies.json` — exported from Cookie-Editor at amazon.com/gp/css/order-history
+
+## Automation (launchd)
+
+`com.shamelessmama.seo.plist` runs `run_daily.py` at **7am and 3pm** daily.
+
+```bash
+cp com.shamelessmama.seo.plist ~/Library/LaunchAgents/
+launchctl load ~/Library/LaunchAgents/com.shamelessmama.seo.plist
+```
+
+## Target Keywords
 
 | Keyword | Target Position |
 |---------|----------------|
@@ -43,7 +94,6 @@ python monitor/run_all.py
 | EMDR therapist moms California | Top 5 |
 | Postpartum depression therapist California | Top 5 |
 | Prenatal therapist San Francisco | Top 3 |
-| EMDR intensive birth trauma | Top 3 |
 | Perinatal mental health therapist California | Top 5 |
 | Birth trauma therapist online California | Top 3 |
 | Postpartum anxiety therapist Bay Area | Top 5 |
