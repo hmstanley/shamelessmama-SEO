@@ -85,27 +85,20 @@ Both scripts load from this file automatically. No code changes needed — just 
 
 ---
 
-### Block a domain from appearing in the competitor dashboard
+### Block a domain / tune the competitor spy
 
-Three files share a `DIRECTORY_DOMAINS` set. Add the domain to all three to fully suppress it:
+**Edit one file: `config/settings.json`**
 
-- `monitor/competitor_monitor.py` — `DIRECTORY_DOMAINS` (~line 40)
-- `monitor/competitor_keyword_spy.py` — `DIRECTORY_DOMAINS` (~line 28)
-- `monitor/seo_pipe.py` — `DIRECTORY_DOMAINS` (~line 28)
-
----
-
-### Competitor keyword spy settings
-
-All in `monitor/competitor_keyword_spy.py`:
-
-| Constant | Line | What it controls |
-|----------|------|-----------------|
-| `MAX_COMPETITORS` | ~54 | How many competitor domains to crawl (default: 8) |
-| `MAX_PAGES_PER_COMPETITOR` | ~53 | Max pages to scan per competitor (default: 50) |
-| `SKIP_SEGMENTS` | ~41 | URL path words that mark non-content pages (about, contact, faq, etc.) — add words here to filter out junk pages |
-| `CREDENTIAL_WORDS` | ~50 | Words that identify therapist bio/staff pages (lmft, lcsw, phd, etc.) |
-| `MAX_KEYWORD_WORDS` | ~52 | Max words kept from a URL slug — prevents long blog titles becoming noisy keywords (default: 6) |
+| Setting | What it controls |
+|---------|-----------------|
+| `directory_domains` | Sites filtered out everywhere — add any domain you never want to see in results |
+| `competitor_spy.max_competitors` | How many competitor domains to crawl (default: 8) |
+| `competitor_spy.max_pages_per_competitor` | Max pages to scan per competitor (default: 50) |
+| `competitor_spy.max_keyword_words` | Max words kept from a URL slug — prevents long blog titles becoming noisy keywords (default: 6) |
+| `competitor_spy.skip_segments` | URL path words that mark non-content pages — add words here to filter junk pages |
+| `competitor_spy.credential_words` | Words that identify therapist bio/staff pages (lmft, lcsw, phd, etc.) |
+| `competitor_spy.stop_words` | Common words stripped before keyword matching |
+| `competitor_analysis.slug_stop_words` | Words ignored when matching competitor URLs to keywords |
 
 ---
 
