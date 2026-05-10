@@ -14,6 +14,60 @@ Agentic SEO monitoring for [shamelessmamawellness.com](https://www.shamelessmama
 - Exports the full dashboard to a print-ready HTML file (PDF via browser print)
 - Runs automatically at 7am and 3pm via launchd
 
+---
+
+## Configuration (start here)
+
+All configuration lives in two JSON files in the `config/` folder. No Python editing required.
+
+### `config/keywords.json` — tracked keywords
+
+| List | Used by | Notes |
+|------|---------|-------|
+| `rankings` | `seo_monitor.py` | Keywords checked for Google position daily. Brand terms fine here. |
+| `competitor_analysis` | `competitor_monitor.py` | Keywords used to find and benchmark competitors. Each one costs a Serper credit per run — keep this list focused. |
+
+Add or remove entries from either list, save the file, and the next run picks up the changes automatically.
+
+---
+
+### `config/settings.json` — everything else
+
+#### Blocked domains (`directory_domains`)
+Sites suppressed everywhere — competitor tables, keyword spy, dashboard display. Add any domain you never want to see:
+```json
+"directory_domains": [
+  "psychologytoday.com",
+  "yelp.com",
+  "talkspace.com"
+]
+```
+
+#### Pinned competitors (`pinned_competitors`)
+Domains you always want to spy on, regardless of whether they appear in search results that week. These are your known direct competitors:
+```json
+"pinned_competitors": [
+  "bloomtherapysf.com",
+  "mccartneytherapy.com"
+]
+```
+- Pinned competitors fill slots first, then auto-discovered competitors fill the rest up to `max_competitors`
+- If you pin more domains than `max_competitors` allows, raise `max_competitors` too
+- A domain in both `pinned_competitors` and `directory_domains` is silently skipped
+
+#### Competitor spy tuning (`competitor_spy`)
+
+| Setting | Default | What it controls |
+|---------|---------|-----------------|
+| `max_competitors` | 8 | Total competitor domains to crawl per run (pinned + discovered) |
+| `max_pages_per_competitor` | 50 | Max pages to scan from each competitor's sitemap |
+| `max_keyword_words` | 6 | Max words kept from a URL slug — prevents long blog titles becoming noisy keywords |
+| `skip_segments` | *(list)* | URL path words that identify non-content pages (about, faq, contact, etc.) — add words to filter junk |
+| `credential_words` | *(list)* | Words that identify therapist bio/staff pages (lmft, lcsw, phd, etc.) — keeps people pages out of keyword results |
+| `stop_words` | *(list)* | Common words stripped before keyword matching |
+
+---
+
 ## Monitor Scripts
 
 | Script | What it does |
@@ -21,13 +75,15 @@ Agentic SEO monitoring for [shamelessmamawellness.com](https://www.shamelessmama
 | `monitor/run_daily.py` | Orchestrates all monitors, writes `daily_digest.json` |
 | `monitor/seo_monitor.py` | Keyword ranking checks via Serper |
 | `monitor/competitor_monitor.py` | SERP competitor analysis, authority scores, keyword gap report |
-| `monitor/competitor_keyword_spy.py` | Sitemap crawl of top competitors, keyword extraction, page matching |
+| `monitor/competitor_keyword_spy.py` | Sitemap crawl of pinned + discovered competitors, keyword extraction, page matching |
 | `monitor/gsc_monitor.py` | Google Search Console weekly trends and quick wins |
 | `monitor/site_audit.py` | Technical SEO health (schema, meta, page speed) |
 | `monitor/email_monitor.py` | iCloud IMAP digest for Marilyn's inbox |
 | `monitor/amazon_monitor.py` | Amazon order history via Playwright |
-| `monitor/gsc_auth.py` | OAuth2 helper for GSC API |
+| `monitor/gsc_auth.py` | OAuth2 helper for GSC API (run once to authenticate) |
 | `monitor/content_brief.py` | Blog topic and content brief generator |
+
+---
 
 ## Open WebUI Dashboard (seo_pipe.py)
 
@@ -45,9 +101,15 @@ The dashboard runs as a pipe inside [Home AI](http://192.168.1.197:8080) (Open W
 - 📄 Top Pages — last 28 days from GSC
 - 🔧 Fix List — prioritized action items
 
-**PDF Export:** say `export PDF` → opens a styled HTML file on `~/Desktop` → open in browser → Cmd+P → Save as PDF.
+**PDF Export:** say `export PDF` → a styled HTML file is saved to `~/Desktop` → open in Chrome or Safari → Cmd+P → Save as PDF.
+
+> Note: after editing `seo_pipe.py`, re-push to Open WebUI via Admin → Functions → paste updated code, or re-run the API push script.
+
+---
 
 ## Data Files (dashboard/data/)
+
+These are written automatically by the monitor scripts. Do not edit manually.
 
 | File | Written by |
 |------|-----------|
@@ -59,72 +121,6 @@ The dashboard runs as a pipe inside [Home AI](http://192.168.1.197:8080) (Open W
 | `audit.json` | `site_audit.py` |
 | `daily_digest.json` | `run_daily.py` |
 
-## Configuration — What to Edit and Where
-
-### Add or remove tracked keywords
-
-**Edit one file: `config/keywords.json`**
-
-```json
-{
-  "rankings": [
-    "Birth trauma therapist San Francisco",
-    "..."
-  ],
-  "competitor_analysis": [
-    "birth trauma therapist San Francisco",
-    "..."
-  ]
-}
-```
-
-- **`rankings`** — keywords checked for position in Google (used by `seo_monitor.py`)
-- **`competitor_analysis`** — keywords used to find and benchmark competitors (used by `competitor_monitor.py`) — these cost Serper credits, so keep this list focused
-
-Both scripts load from this file automatically. No code changes needed — just edit the JSON and run `python monitor/run_daily.py`.
-
----
-
-### Block a domain / tune the competitor spy
-
-**Edit one file: `config/settings.json`**
-
-| Setting | What it controls |
-|---------|-----------------|
-| `directory_domains` | Sites blocked everywhere — add any domain you never want to see in results |
-| `pinned_competitors` | Domains always spied on regardless of SERP results — your known direct competitors |
-| `competitor_spy.max_competitors` | How many competitor domains to crawl (default: 8) |
-| `competitor_spy.max_pages_per_competitor` | Max pages to scan per competitor (default: 50) |
-| `competitor_spy.max_keyword_words` | Max words kept from a URL slug — prevents long blog titles becoming noisy keywords (default: 6) |
-| `competitor_spy.skip_segments` | URL path words that mark non-content pages — add words here to filter junk pages |
-| `competitor_spy.credential_words` | Words that identify therapist bio/staff pages (lmft, lcsw, phd, etc.) |
-| `competitor_spy.stop_words` | Common words stripped before keyword matching |
-| `competitor_analysis.slug_stop_words` | Words ignored when matching competitor URLs to keywords |
-
----
-
-### Dashboard chat triggers
-
-In `monitor/seo_pipe.py`:
-
-- **`TRIGGERS`** (~line 16) — phrases that show the full dashboard in chat
-- **`EXPORT_TRIGGERS`** (~line 23) — phrases that generate the PDF export file
-
-After editing `seo_pipe.py`, push it to Open WebUI:
-```bash
-python3 monitor/push_pipe.py   # or re-paste via Admin → Functions
-```
-
----
-
-### API keys
-
-| Key | Location | Used by |
-|-----|----------|---------|
-| Serper.dev | `.serperAPI` in repo root | `seo_monitor.py`, `competitor_monitor.py` |
-| Open PageRank | `~/.openpagerank-api-key` | `competitor_monitor.py` |
-| Amazon cookies | `~/.amazon_cookies.json` | `amazon_monitor.py` |
-
 ---
 
 ## Setup
@@ -132,37 +128,28 @@ python3 monitor/push_pipe.py   # or re-paste via Admin → Functions
 ```bash
 pip install -r requirements.txt
 
-# GSC auth (one-time)
+# GSC auth (one-time browser login)
 python monitor/gsc_auth.py
 
 # Run everything manually
 python monitor/run_daily.py
 ```
 
-API keys required:
-- `.serperAPI` in repo root — Serper.dev key
-- `~/.openpagerank-api-key` — Open PageRank key
-- `~/.amazon_cookies.json` — exported from Cookie-Editor at amazon.com/gp/css/order-history
+**API keys required:**
+
+| Key | Where to put it | Used by |
+|-----|----------------|---------|
+| Serper.dev | `.serperAPI` in repo root | `seo_monitor.py`, `competitor_monitor.py` |
+| Open PageRank | `~/.openpagerank-api-key` | `competitor_monitor.py` |
+| Amazon cookies | `~/.amazon_cookies.json` | `amazon_monitor.py` — export from Cookie-Editor at amazon.com/gp/css/order-history |
+
+---
 
 ## Automation (launchd)
 
-`com.shamelessmama.seo.plist` runs `run_daily.py` at **7am and 3pm** daily.
+`com.shamelessmama.seo.plist` runs `run_daily.py` at **7am and 3pm** daily on the HomeAI Mac.
 
 ```bash
 cp com.shamelessmama.seo.plist ~/Library/LaunchAgents/
 launchctl load ~/Library/LaunchAgents/com.shamelessmama.seo.plist
 ```
-
-## Target Keywords
-
-| Keyword | Target Position |
-|---------|----------------|
-| Birth trauma therapist San Francisco | Top 3 |
-| Postpartum therapist San Francisco Bay Area | Top 5 |
-| EMDR therapist moms California | Top 5 |
-| Postpartum depression therapist California | Top 5 |
-| Prenatal therapist San Francisco | Top 3 |
-| Perinatal mental health therapist California | Top 5 |
-| Birth trauma therapist online California | Top 3 |
-| Postpartum anxiety therapist Bay Area | Top 5 |
-| Mother wound therapist California | Top 3 |
