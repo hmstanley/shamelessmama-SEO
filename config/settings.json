@@ -1,0 +1,51 @@
+{
+  "_note": "Edit this file to tune the SEO monitor. Run monitor/run_daily.py after saving.",
+
+  "directory_domains": [
+    "psychologytoday.com",
+    "zencare.co",
+    "therapyden.com",
+    "yelp.com",
+    "zocdoc.com",
+    "healthgrades.com",
+    "therapistfinder.com",
+    "betterhelp.com",
+    "talkspace.com",
+    "goodtherapy.org",
+    "psychology.com",
+    "therapist.com",
+    "findatherapist.com",
+    "therapyroute.com"
+  ],
+
+  "competitor_spy": {
+    "max_competitors": 8,
+    "max_pages_per_competitor": 50,
+    "max_keyword_words": 6,
+
+    "skip_segments": [
+      "about", "contact", "privacy", "terms", "faq", "team", "staff",
+      "sitemap", "feed", "login", "register", "tag", "category", "author",
+      "testimonials", "press", "media", "cart", "checkout", "account",
+      "search", "404", "home", "index", "page", "fees", "insurance",
+      "rates", "billing", "policies", "resources", "newsletter"
+    ],
+
+    "credential_words": [
+      "lmft", "amft", "mft", "phd", "lcsw", "psyd", "asw", "pcc", "lpcc", "md"
+    ],
+
+    "stop_words": [
+      "the", "for", "and", "in", "of", "to", "a", "an", "with", "at", "by",
+      "from", "or", "on", "is", "are", "was", "my", "your", "our", "how",
+      "what", "why", "when", "where", "who", "get", "help", "find"
+    ]
+  },
+
+  "competitor_analysis": {
+    "slug_stop_words": [
+      "the", "for", "and", "therapist", "therapy", "san", "california",
+      "area", "bay", "online", "near", "with", "francisco"
+    ]
+  }
+}

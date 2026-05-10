@@ -2,7 +2,7 @@
 title: SEO Dashboard — Shameless Mama Wellness
 author: HomeAI
 description: Live SEO dashboard for shamelessmamawellness.com. Triggers on 'SEO report', 'what's new today', 'show my rankings', 'quick wins', 'what needs fixing', 'site health', 'keyword rankings', 'seo dashboard', 'daily digest'.
-version: 0.7.0
+version: 0.8.0
 """
 
 import json
@@ -10,7 +10,8 @@ import os
 import datetime
 from pydantic import BaseModel, Field
 
-DATA_DIR = "/Users/Will.Coleman/shamelessmama-SEO/dashboard/data"
+REPO_ROOT  = "/Users/Will.Coleman/shamelessmama-SEO"
+DATA_DIR   = os.path.join(REPO_ROOT, "dashboard", "data")
 SERPER_KEY = "5e92a651e8cedbf894e75d55e447a1f92396beb6"
 
 TRIGGERS = [
@@ -25,12 +26,9 @@ EXPORT_TRIGGERS = {
     "export pdf", "export dashboard", "save pdf", "download dashboard", "print dashboard",
 }
 
-DIRECTORY_DOMAINS = {
-    "psychologytoday.com", "zencare.co", "therapyden.com", "yelp.com",
-    "zocdoc.com", "healthgrades.com", "therapistfinder.com", "betterhelp.com",
-    "talkspace.com", "goodtherapy.org", "psychology.com", "therapist.com",
-    "findatherapist.com", "therapyroute.com",
-}
+with open(os.path.join(REPO_ROOT, "config", "settings.json")) as _f:
+    _cfg = json.load(_f)
+DIRECTORY_DOMAINS = set(_cfg["directory_domains"])
 
 
 class Pipe:

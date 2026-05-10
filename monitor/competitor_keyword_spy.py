@@ -25,33 +25,17 @@ DATA_DIR = os.path.join(REPO_ROOT, "dashboard", "data")
 OUTPUT_FILE = os.path.join(DATA_DIR, "competitor_keywords.json")
 TARGET_SITE = "shamelessmamawellness.com"
 
-DIRECTORY_DOMAINS = {
-    "psychologytoday.com", "zencare.co", "therapyden.com", "yelp.com",
-    "zocdoc.com", "healthgrades.com", "therapistfinder.com", "betterhelp.com",
-    "talkspace.com", "goodtherapy.org", "psychology.com", "therapist.com",
-    "findatherapist.com", "therapyroute.com",
-}
+with open(os.path.join(REPO_ROOT, "config", "settings.json")) as _f:
+    _cfg = json.load(_f)
 
-STOP_WORDS = {
-    "the", "for", "and", "in", "of", "to", "a", "an", "with", "at", "by",
-    "from", "or", "on", "is", "are", "was", "my", "your", "our", "how",
-    "what", "why", "when", "where", "who", "get", "help", "find",
-}
-
-SKIP_SEGMENTS = {
-    "about", "contact", "privacy", "terms", "faq", "team", "staff",
-    "sitemap", "feed", "login", "register", "tag", "category", "author",
-    "testimonials", "press", "media", "cart", "checkout", "account",
-    "search", "404", "home", "index", "page", "fees", "insurance",
-    "rates", "billing", "policies", "resources", "newsletter",
-}
-
-# Therapist credentials — presence in a slug means it's a staff/bio page
-CREDENTIAL_WORDS = {"lmft", "amft", "mft", "phd", "lcsw", "psyd", "asw", "pcc", "lpcc", "md"}
-
-MAX_KEYWORD_WORDS = 6
-MAX_PAGES_PER_COMPETITOR = 50
-MAX_COMPETITORS = 8
+DIRECTORY_DOMAINS   = set(_cfg["directory_domains"])
+_spy                = _cfg["competitor_spy"]
+STOP_WORDS          = set(_spy["stop_words"])
+SKIP_SEGMENTS       = set(_spy["skip_segments"])
+CREDENTIAL_WORDS    = set(_spy["credential_words"])
+MAX_KEYWORD_WORDS        = _spy["max_keyword_words"]
+MAX_PAGES_PER_COMPETITOR = _spy["max_pages_per_competitor"]
+MAX_COMPETITORS          = _spy["max_competitors"]
 
 
 def is_directory(domain):

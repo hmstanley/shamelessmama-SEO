@@ -25,21 +25,14 @@ OPR_KEY_FILE = os.path.expanduser("~/.openpagerank-api-key")
 OUTPUT_FILE = os.path.join(DATA_DIR, "competitors.json")
 GAP_FILE = os.path.join(DATA_DIR, "keyword_gap.json")
 
-_kw_file = os.path.join(REPO_ROOT, "config", "keywords.json")
-with open(_kw_file) as _f:
+with open(os.path.join(REPO_ROOT, "config", "keywords.json")) as _f:
     KEYWORDS = json.load(_f)["competitor_analysis"]
 
-DIRECTORY_DOMAINS = {
-    "psychologytoday.com", "zencare.co", "therapyden.com", "yelp.com",
-    "zocdoc.com", "healthgrades.com", "therapistfinder.com", "betterhelp.com",
-    "talkspace.com", "goodtherapy.org", "psychology.com", "therapist.com",
-    "findatherapist.com", "therapyroute.com",
-}
+with open(os.path.join(REPO_ROOT, "config", "settings.json")) as _f:
+    _cfg = json.load(_f)
 
-SLUG_STOP_WORDS = {
-    "the", "for", "and", "therapist", "therapy", "san", "california",
-    "area", "bay", "online", "near", "with", "francisco",
-}
+DIRECTORY_DOMAINS = set(_cfg["directory_domains"])
+SLUG_STOP_WORDS   = set(_cfg["competitor_analysis"]["slug_stop_words"])
 
 
 def load_key(path):
