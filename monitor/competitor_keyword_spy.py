@@ -29,6 +29,7 @@ with open(os.path.join(REPO_ROOT, "config", "settings.json")) as _f:
     _cfg = json.load(_f)
 
 DIRECTORY_DOMAINS   = set(_cfg["directory_domains"])
+PINNED_COMPETITORS  = [d for d in _cfg.get("pinned_competitors", []) if not d.startswith("_")]
 _spy                = _cfg["competitor_spy"]
 STOP_WORDS          = set(_spy["stop_words"])
 SKIP_SEGMENTS       = set(_spy["skip_segments"])
@@ -199,17 +200,30 @@ def run():
     with open(comp_file) as f:
         comp_data = json.load(f)
 
+    # Pinned competitors always included (skip any that are blocked or are our own site)
+    pinned = [
+        (d, 0) for d in PINNED_COMPETITORS
+        if not is_directory(d) and d != TARGET_SITE
+    ]
+    pinned_domains = {d for d, _ in pinned}
+
     # Count how often each real competitor domain appears across keyword checks
     domain_frequency = {}
     for kw_data in comp_data.get("keywords", []):
         for c in kw_data.get("competitors", []):
             domain = c.get("domain", "")
-            if not is_directory(domain) and domain != TARGET_SITE:
+            if not is_directory(domain) and domain != TARGET_SITE and domain not in pinned_domains:
                 domain_frequency[domain] = domain_frequency.get(domain, 0) + 1
 
-    top_domains = sorted(domain_frequency.items(), key=lambda x: x[1], reverse=True)[:MAX_COMPETITORS]
+    # Fill remaining slots (up to MAX_COMPETITORS) with top discovered domains
+    remaining_slots = max(0, MAX_COMPETITORS - len(pinned))
+    discovered = sorted(domain_frequency.items(), key=lambda x: x[1], reverse=True)[:remaining_slots]
+
+    top_domains = pinned + discovered
 
     print(f"\nCompetitor Keyword Spy — {datetime.datetime.now().strftime('%Y-%m-%d %H:%M')}")
+    if pinned:
+        print(f"  Pinned: {', '.join(pinned_domains)}")
     print(f"Analyzing {len(top_domains)} competitors")
 
     our_pages = load_our_pages()
@@ -218,7 +232,8 @@ def run():
     results = []
 
     for domain, freq in top_domains:
-        print(f"  {domain} (seen in {freq} keyword searches)")
+        source = "pinned" if domain in pinned_domains else f"seen in {freq} keyword searches"
+        print(f"  {domain} ({source})")
 
         urls = fetch_sitemap_urls(domain)
         print(f"    {len(urls)} pages in sitemap")
@@ -227,6 +242,7 @@ def run():
             results.append({
                 "domain": domain,
                 "frequency": freq,
+                "pinned": domain in pinned_domains,
                 "pages_found": 0,
                 "keywords": [],
                 "summary": {"total": 0, "gaps": 0, "partial": 0, "covered": 0},
@@ -267,6 +283,7 @@ def run():
         results.append({
             "domain": domain,
             "frequency": freq,
+            "pinned": domain in pinned_domains,
             "pages_found": len(urls),
             "keywords": keyword_entries,
             "summary": {

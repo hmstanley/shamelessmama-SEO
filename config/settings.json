@@ -15,7 +15,15 @@
     "psychology.com",
     "therapist.com",
     "findatherapist.com",
-    "therapyroute.com"
+    "therapyroute.com",
+    "mindfulcenter.org",
+    "practicesanfrancisco.com",
+    "mythoughtpartners.com"
+  ],
+
+  "pinned_competitors": [
+    "_note: Add domains here that you always want to spy on, regardless of whether they show up in search results.",
+    "_example: bloomtherapysf.com"
   ],
 
   "competitor_spy": {

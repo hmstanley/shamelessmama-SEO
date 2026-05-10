@@ -91,7 +91,8 @@ Both scripts load from this file automatically. No code changes needed — just 
 
 | Setting | What it controls |
 |---------|-----------------|
-| `directory_domains` | Sites filtered out everywhere — add any domain you never want to see in results |
+| `directory_domains` | Sites blocked everywhere — add any domain you never want to see in results |
+| `pinned_competitors` | Domains always spied on regardless of SERP results — your known direct competitors |
 | `competitor_spy.max_competitors` | How many competitor domains to crawl (default: 8) |
 | `competitor_spy.max_pages_per_competitor` | Max pages to scan per competitor (default: 50) |
 | `competitor_spy.max_keyword_words` | Max words kept from a URL slug — prevents long blog titles becoming noisy keywords (default: 6) |
